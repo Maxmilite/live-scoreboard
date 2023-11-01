@@ -7,7 +7,8 @@ def main():
     cursor.execute('''CREATE TABLE users
        (id INTEGER PRIMARY KEY AUTOINCREMENT,
        username TEXT NOT NULL,
-       password TEXT NOT NULL);'''
+       password TEXT NOT NULL
+       admin INTEGER NOT NULL);'''
     )
     cursor.execute('''CREATE TABLE records
        (id INTEGER PRIMARY KEY AUTOINCREMENT,

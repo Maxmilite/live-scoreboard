@@ -3,10 +3,10 @@ import { onMounted, ref } from "vue";
 import { ElMessage } from 'element-plus'
 import { i18nAssets } from './assets/constants'
 
-const serverAddress = "/api"
 const state = ref(0);
 const loggedIn = ref(false);
 const userName = ref("");
+const serverAddress = "/api";
 
 const queryContestID = ref(0);
 
@@ -18,7 +18,7 @@ function stateHandler(e: number) {
     if (e === 0) state.value = 0;
     if (!loggedIn.value) {
       state.value = 0;
-      ElMessage.error(i18nAssets.signinRequired)
+      ElMessage.error(i18nAssets.value.signinRequired)
     }
   }, 10);
 }
@@ -82,44 +82,6 @@ function getSession() {
   }
 }
 
-function getContestList() {
-  let returnMessage = "";
-  let HTTPRequest = new XMLHttpRequest();
-  HTTPRequest.open("GET", serverAddress + "/contest/list", false);
-  try {
-    HTTPRequest.send();
-    returnMessage = HTTPRequest.responseText;
-    return JSON.parse(returnMessage);
-  } catch (error) {
-    return i18nAssets.error;
-  }
-}
-
-function getContestInfo(id: number) {
-  let returnMessage = "";
-  let HTTPRequest = new XMLHttpRequest();
-  HTTPRequest.open("GET", serverAddress + "/contest/info?id=" + id, false);
-  try {
-    HTTPRequest.send();
-    returnMessage = HTTPRequest.responseText;
-    return JSON.parse(returnMessage);
-  } catch (error) {
-    return i18nAssets.error;
-  }
-}
-
-function getRecords(id: number) {
-  let returnMessage = "";
-  let HTTPRequest = new XMLHttpRequest();
-  HTTPRequest.open("GET", serverAddress + "/record?id=" + id, false);
-  try {
-    HTTPRequest.send();
-    returnMessage = HTTPRequest.responseText;
-    return JSON.parse(returnMessage);
-  } catch (error) {
-    return i18nAssets.error;
-  }
-}
 
 function setCategory(id: number, category: string) {
   let HTTPRequest = new XMLHttpRequest();
@@ -142,45 +104,6 @@ function setCategory(id: number, category: string) {
   }
 }
 
-function getHistory(category: string) {
-  if (loggedIn.value == false) {
-    ElMessage.error(i18nAssets.signinRequired);
-    setTimeout(() => stateHandler(0), 10);
-    return {};
-  }
-  let returnMessage = "";
-  let HTTPRequest = new XMLHttpRequest();
-  let address = "/history/get?username=" + userName.value;
-  if (category) {
-    address += "&category=" + category;
-  }
-  HTTPRequest.open("GET", serverAddress + address, false);
-  try {
-    HTTPRequest.send();
-    returnMessage = HTTPRequest.responseText;
-    return JSON.parse(returnMessage);
-  } catch (error) {
-    return "An error occurred while corresponding with the chatbot."
-  }
-}
-
-function getCategories() {
-  if (loggedIn.value == false) {
-    return {};
-  }
-  let returnMessage = "";
-  let HTTPRequest = new XMLHttpRequest();
-  let address = "/history/categories";
-  HTTPRequest.open("GET", serverAddress + address, false);
-  try {
-    HTTPRequest.send();
-    returnMessage = HTTPRequest.responseText;
-    return JSON.parse(returnMessage);
-  } catch (error) {
-    return "An error occurred while corresponding with the chatbot."
-  }
-}
-
 onMounted(() => {
   let res = getSession();
   if (res !== "") {
@@ -192,14 +115,15 @@ onMounted(() => {
 
 <template>
   <el-config-provider namespace="ep">
-    <BaseHeader @response="(e) => stateHandler(e)" :username="userName" :login-function="login" :logged-in="loggedIn"
+    <div style="min-width: 1024px;">
+      <BaseHeader @response="(e) => stateHandler(e)" :username="userName" :login-function="login" :logged-in="loggedIn"
       :logout-function="logout" />
-    <div style="display: flex">
-      <div style="width: 100%; height: calc(100vh - 120px);">
-        <Welcome v-if="state === 0" :contest-list-function="getContestList" :logged-in="loggedIn"
-          @response="(e) => stateHandler(e)" msg="Live Scoreboard" />
-        <Scoreboard v-else-if="state === 1" :cid="queryContestID" :contest-info-function="getContestInfo"
-          :record-function="getRecords" />
+      <div style="display: flex; width: 100%;">
+        <div style="width: 100%; height: calc(100vh - 120px);">
+          <Welcome v-if="state === 0" :logged-in="loggedIn"
+            @response="(e) => stateHandler(e)" />
+          <Scoreboard v-else-if="state === 1" :cid="queryContestID" :username="userName" />
+        </div>
       </div>
     </div>
   </el-config-provider>

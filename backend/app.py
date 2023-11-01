@@ -125,6 +125,12 @@ def getUserID(username):
     res = cursor.fetchone()
     return res[0]
 
+def checkAdmin(username):
+    cursor.execute(
+        "SELECT admin FROM `users` WHERE username=\"" + username + "\"")
+    res = cursor.fetchone()
+    return res[0] == 1
+
 @app.route("/session", methods=["GET"])
 def checkSession():
     username = session.get("username")
@@ -205,6 +211,58 @@ def getRecords():
     namelist = dict(zip([i[0] for i in namelist], [i[1] for i in namelist]))
     res = [{"id": i[0], "name": namelist[i[1]], "pid": i[2], "time": i[3] ,"score": i[4]} for i in data]
     return jsonify(res)
+
+@app.route('/contest/problems', methods=['GET'])
+def getProblems():
+    if not (session.get("username")):
+        flask.abort(401)
+    cursor.execute(
+        f"SELECT pid, name, total_score FROM `problems`")
+    namelist = cursor.fetchall()
+    namelist = dict(zip([i[0] for i in namelist], [(i[1], i[2]) for i in namelist]))
+    cursor.execute(
+        f"SELECT pid score FROM `cp_mapping` WHERE cid={request.args.get('id', '0')}")
+    data = cursor.fetchall()
+    res = [{"pid": i[0], "name": namelist[i[0]][0], "totalScore": namelist[i[0]][1]} for i in data]
+    return jsonify(res)
+
+@app.route('/record/add', methods=['POST'])
+def addRecords():
+    if not (session.get("username")):
+        flask.abort(401)
+    if not (checkAdmin(session.get("username"))): flask.abort(403)
+    try: setJson = request.get_json()
+    except: setJson = {}
+    if not setJson: setJson = {}
+    cursor.execute(
+        "INSERT INTO `records` (uid, cid, pid, score) VALUES ('%s', '%s', '%s', '%s')" 
+            % (setJson['uid'], setJson['cid'], setJson['pid'], setJson['score']))
+    db.commit()
+    return jsonify(code=200, msg="Success")
+    
+@app.route('/record/modify', methods=['POST'])
+def modifyRecords():
+    if not (session.get("username")): flask.abort(401)
+    if not (checkAdmin(session.get("username"))): flask.abort(403)
+    try: setJson = request.get_json()
+    except: setJson = {}
+    if not setJson: setJson = {}
+    cursor.execute(
+        "UPDATE `records` SET `score` = '%s' WHERE (`id` = '%s')" % (setJson['score'], setJson['id']))
+    db.commit()
+    return jsonify(code=200, msg="Success")
+
+@app.route('/record/delete', methods=['POST'])
+def deleteRecords():
+    if not (session.get("username")): flask.abort(401)
+    if not (checkAdmin(session.get("username"))): flask.abort(403)
+    try: setJson = request.get_json()
+    except: setJson = {}
+    if not setJson: setJson = {}
+    cursor.execute(
+        "DELETE FROM `records` WHERE (`id` = '%s')" % (setJson['id']))
+    db.commit()
+    return jsonify(code=200, msg="Success")
 
 # Main
 

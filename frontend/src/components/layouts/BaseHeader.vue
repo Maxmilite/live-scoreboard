@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import { Action, ElMessage, ElMessageBox } from 'element-plus';
 import { reactive, ref } from 'vue';
 import { toggleDark } from '~/composables';
-import { i18nAssets } from '~/assets/constants';
+import { i18nAssets, switchLanguage } from '~/assets/constants';
 
 const emit = defineEmits(['response']);
 const dialogFormVisible = ref(false);
@@ -44,6 +43,11 @@ const logout = () => {
   <el-menu class="el-menu-demo" mode="horizontal" :ellipsis="false">
     <el-menu-item index="1" @click="exit(0)">{{ i18nAssets.title }}</el-menu-item>
     <div style="flex-grow: 1" />
+    <el-menu-item index="4" @click="switchLanguage()">
+      <el-icon>
+        <Tools />
+      </el-icon>
+    </el-menu-item>
     <el-menu-item index="5" @click="toggleDark()">
       <button class="border-none bg-transparent cursor-pointer" style="height: var(--ep-menu-item-height);">
         <i inline-flex i="dark:ep-moon ep-sunny" />

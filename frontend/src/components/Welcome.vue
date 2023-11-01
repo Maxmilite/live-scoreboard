@@ -3,9 +3,7 @@ import { i18nAssets } from '~/assets/constants';
 
 
 const props = defineProps({
-  msg: String,
   loggedIn: Boolean,
-  contestListFunction: Function
 });
 
 const emit = defineEmits(['response']);
@@ -18,10 +16,10 @@ const startSession = (e: any) => {
 
 <template>
   <div style="padding-top: 20px">
-    <h1>{{ msg }}</h1>
+    <h1>{{ i18nAssets.title }}</h1>
 
     <div class="my-2 text-center flex flex-wrap justify-center items-center">
-      <Contests v-if="props.loggedIn" :contest-list-function="contestListFunction" @response="(e) => {startSession(e);}"/>
+      <Contests v-if="props.loggedIn" @response="(e) => {startSession(e);}"/>
       <p style="padding-top: 30vh" v-else>{{ i18nAssets.signinRequired }}</p>
     </div>
   </div>
