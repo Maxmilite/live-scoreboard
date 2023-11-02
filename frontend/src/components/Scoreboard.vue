@@ -228,7 +228,7 @@ onMounted(() => {
 }
 
 .grid-content {
-  min-height: 36px;
+  height: 54px;
   text-align: center;
   display: flex;
   justify-content: center;
