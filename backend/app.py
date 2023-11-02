@@ -115,7 +115,7 @@ def getUserPassword(username):
 
 def createUser(username, password):
     cursor.execute(
-        "INSERT INTO `users` (`username`, `password`) VALUES ('%s', '%s')" % (username, password))
+        "INSERT INTO `users` (`username`, `password`, `admin`) VALUES ('%s', '%s', '0')" % (username, password))
     db.commit()
 
 
@@ -130,6 +130,11 @@ def checkAdmin(username):
         "SELECT admin FROM `users` WHERE username=\"" + username + "\"")
     res = cursor.fetchone()
     return res[0] == 1
+
+'''
+PrivilegeNode => Tree Structure
+OWNER MODERATOR ADMIN MEMBER
+'''
 
 @app.route("/session", methods=["GET"])
 def checkSession():
